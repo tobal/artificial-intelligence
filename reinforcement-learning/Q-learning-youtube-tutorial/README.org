@@ -1,0 +1,5 @@
+
+Code from the tutorial videos found on this list:
+[[https://www.youtube.com/playlist?list=PLQVvvaa0QuDezJFIOU5wDdfy4e9vdnx-7][Reinforcement learning tutorial series]]
+
+I didn't try to improve on it (yet), only made small changes to conform to common coding standards
