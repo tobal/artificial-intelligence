@@ -23,8 +23,18 @@ discrete_state = get_discrete_state(env.reset())
 done = False
 
 while not done:
-    action = 2
+    action = np.argmax(q_table[discrete_state])
     new_state, reward, done, _ = env.step(action)
+    new_discrete_state = get_discrete_state(new_state)
     env.render()
+    if not done:
+        max_future_q = np.max(q_table[new_discrete_state])
+        current_q = q_table[discrete_state + (action, )]
+        new_q = (1 - LEARNING_RATE) * current_q + LEARNING_RATE * (reward + DISCOUNT * max_future_q)
+        q_table[discrete_state + (action, )] = new_q
+    elif new_state[0] >= env.goal_position:
+        q_table[discrete_state + (action, )] = 0
+
+    discrete_state = new_discrete_state
 
 env.close()
