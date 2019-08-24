@@ -13,6 +13,13 @@ discrete_os_win_size = (env.observation_space.high - env.observation_space.low) 
 
 q_table = np.random.uniform(low=2, high=0, size=(DISCRETE_OS_SIZE + [env.action_space.n]))
 
+
+def get_discrete_state(state):
+    output_state = (state - env.observation_space.low) / discrete_os_win_size
+    return tuple(output_state.astype(np.int))
+
+
+discrete_state = get_discrete_state(env.reset())
 done = False
 
 while not done:
