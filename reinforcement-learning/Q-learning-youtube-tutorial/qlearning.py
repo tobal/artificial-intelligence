@@ -8,6 +8,8 @@ LEARNING_RATE = 0.1
 DISCOUNT = 0.95
 EPISODES = 25000
 
+SHOW_EVERY = 2000
+
 DISCRETE_OS_SIZE = [20] * len(env.observation_space.high)
 discrete_os_win_size = (env.observation_space.high - env.observation_space.low) / DISCRETE_OS_SIZE
 
@@ -19,22 +21,24 @@ def get_discrete_state(state):
     return tuple(output_state.astype(np.int))
 
 
-discrete_state = get_discrete_state(env.reset())
-done = False
+for episode in range(EPISODES):
+    render = episode % SHOW_EVERY == 0
+    discrete_state = get_discrete_state(env.reset())
+    done = False
+    while not done:
+        action = np.argmax(q_table[discrete_state])
+        new_state, reward, done, _ = env.step(action)
+        new_discrete_state = get_discrete_state(new_state)
+        if render:
+            env.render()
+        if not done:
+            max_future_q = np.max(q_table[new_discrete_state])
+            current_q = q_table[discrete_state + (action, )]
+            new_q = (1 - LEARNING_RATE) * current_q + LEARNING_RATE * (reward + DISCOUNT * max_future_q)
+            q_table[discrete_state + (action, )] = new_q
+        elif new_state[0] >= env.goal_position:
+            q_table[discrete_state + (action, )] = 0
 
-while not done:
-    action = np.argmax(q_table[discrete_state])
-    new_state, reward, done, _ = env.step(action)
-    new_discrete_state = get_discrete_state(new_state)
-    env.render()
-    if not done:
-        max_future_q = np.max(q_table[new_discrete_state])
-        current_q = q_table[discrete_state + (action, )]
-        new_q = (1 - LEARNING_RATE) * current_q + LEARNING_RATE * (reward + DISCOUNT * max_future_q)
-        q_table[discrete_state + (action, )] = new_q
-    elif new_state[0] >= env.goal_position:
-        q_table[discrete_state + (action, )] = 0
-
-    discrete_state = new_discrete_state
+        discrete_state = new_discrete_state
 
 env.close()
